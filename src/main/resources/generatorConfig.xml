@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+    <!-- 引入外部属性文件 -->
+    <properties resource="generator.properties"/>
+
+    <!-- flat:该模型为每一张表只生成一个实体类。这个实体类包含表中的所有字段-->
+    <!-- targetRuntime:此属性用于指定生成的代码的运行时环境,MyBatis3:*这是默认值*
+    不生成和Example查询有关的内容,使用MyBatis3Simple可以避免在后面的<table>中逐个进行配置
+    -->
+    <context id="Mysql" targetRuntime="MyBatis3Simple"  defaultModelType="flat">
+        <!-- beginningDelimiter endingDelimiter 在生成sql中增加分隔符,例如：select * from `user info`
+        useMapperCommentGenerator 是否使用通用 Mapper 提供的注释工具，默认 true 使用,设置 false 后会用默认的
+        -->
+        <property name="beginningDelimiter" value="`"/>
+        <property name="endingDelimiter" value="`"/>
+        <property name="javaFileEncoding" value="UTF-8"/>
+        <property name="useMapperCommentGenerator" value="true"/>
+
+
+        <!-- 配置通用Mapper的MBG插件相关信息
+            mappers，配置后生成的 Mapper 接口都会自动继承该接口
+            caseSensitive 是否区分大小写，默认值 false。如果数据库区分大小写，这里就需要配置为 true
+            forceAnnotation 是否强制生成注解，默认 false,如果设置为 true，不管数据库名和字段名是否一致，都会生成注解（包含 @Table 和 @Column）
+            generateColumnConsts 在生成的 model中，增加字段名的常量，便于使用 Example 拼接查询条件的时候使用
+            lombok 增加 model 代码生成时，可以直接生成 lombok 的 @Getter@Setter@ToString@Accessors(chain = true) 四类注解
+        -->
+        <!-- 整合lombok-->
+        <plugin type="com.myself.pulgins.LombokPlugin" >
+            <property name="hasLombok" value="true"/>
+        </plugin>
+        <!-- 序列化-->
+        <plugin type="org.mybatis.generator.plugins.SerializablePlugin" />
+        <!-- 通用mapper -->
+        <plugin type="${mapper.plugin}">
+            <property name="mappers" value="${mapper.Mapper}"/>
+            <property name="caseSensitive" value="true"/>
+            <property name="forceAnnotation" value="true"/>
+            <property name="generateColumnConsts" value="true"/>
+<!--            <property name="lombok" value="Data,Accessors"/>-->
+        </plugin>
+
+
+        <!-- 配置连接数据库的基本信息 -->
+        <jdbcConnection
+                driverClass="${jdbc.driverClass}"
+                connectionURL="${jdbc.url}"
+                userId="${jdbc.user}"
+                password="${jdbc.password}">
+        </jdbcConnection>
+
+        <!-- 对应生成的pojo所在包 -->
+        <javaModelGenerator targetPackage="${model}" targetProject="src/main/java"/>
+        <!-- 对应生成的mapper所在目录 -->
+        <sqlMapGenerator targetPackage="${mapper.xml}" targetProject="src/main/resources"/>
+        <!-- 配置mapper对应的java映射 -->
+        <javaClientGenerator targetPackage="${mapper-interface}" targetProject="src/main/java" type="XMLMAPPER"/>
+
+        <!-- 根据数据库表生成Java文件的相关规则 -->
+        <!-- tableName="%"表示数据库中所有表都参与逆向工程，此时使用默认规则 -->
+        <!-- 默认规则：table_dept→TableDept -->
+        <!-- 不符合默认规则时需要使用tableName和domainObjectName两个属性明确指定 -->
+        <table tableName="monitor_result" >
+            <!-- 生成字段是否与数据库表字段名称一致（false：默认转化成驼峰命名，true:与表字段名一致）-->
+            <property name="useActualColumnNames" value="true"/>
+            <!-- 配置主键生成策略 -->
+            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
+        </table>
+        <table tableName="monitor_task" >
+            <!-- 配置主键生成策略 -->
+            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
+        </table>
+
+    </context>
+</generatorConfiguration>
